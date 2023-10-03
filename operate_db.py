@@ -39,8 +39,8 @@ def insert_table(connection,table_name,name,date,time):
     cursor.execute(insert_query, (name,date, time,))
     connection.commit()
 
-def read_table(connection,table_name,element):
-    read_query = "SELECT {} FROM {}".format(element,table_name)
+def read_table(connection,table_name,element,conditional):
+    read_query = "SELECT {} FROM {} {}".format(element,table_name,conditional)
     print(read_query)
     cursor = connection.cursor()
     cursor.execute(read_query)
@@ -59,7 +59,7 @@ connection = connect_database()
 d_now ,t_now = current_time()
 #insert_table(connection,"toilet0","A",d_now,t_now)
 
-result = read_table(connection,"toilet0","*")
+result = read_table(connection,"toilet0","*","WHERE time ='01:19'")
 print(result)
 
 
