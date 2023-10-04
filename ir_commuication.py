@@ -1,21 +1,14 @@
-
 import RPi.GPIO as GPIO
 import time
 import subprocess
 import re
+import threading
 
 TOLERANCE  = 15
 TOLER_MIN =  (100 - TOLERANCE) / 100.0
 TOLER_MAX =  (100 + TOLERANCE) / 100.0
 
-def sort_stdout(text):
-	pattern = r'\[([0-9, ]+)\]'
-	matches = re.findall(pattern, text)
-	if matches:
-		numbers = [int(num) for num in matches[0].split(',')]
-	else:
-		print("sort_error!")
-	return numbers
+
 	
 def recv_data():
 	read_cmd = "python3 irrp_re.py -r -g18 -f recv data"
@@ -23,34 +16,7 @@ def recv_data():
 	recv_data = result.stdout
 	return recv_data
 
-def compare(p1, p2):
-   """
-   Check that both recodings correspond in pulse length to within
-   TOLERANCE%.  If they do average the two recordings pulse lengths.
 
-   Input
-
-        M    S   M   S   M   S   M    S   M    S   M
-   1: 9000 4500 600 560 600 560 600 1700 600 1700 600
-   2: 9020 4570 590 550 590 550 590 1640 590 1640 590
-
-   Output
-
-   A: 9010 4535 595 555 595 555 595 1670 595 1670 595
-   """
-   if len(p1) != len(p2):
-      return False
-
-   for i in range(len(p1)):
-      v = p1[i] / p2[i]
-      if (v < TOLER_MIN) or (v > TOLER_MAX):
-         return False
-
-   for i in range(len(p1)):
-       p1[i] = int(round((p1[i]+p2[i])/2.0))
-
-
-   return True
  
 num_data = {
 	"0": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552],
@@ -64,26 +30,68 @@ num_data = {
 	"8": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552],
 	"9": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552]
 	}
+class IR_Process:
+	def __init__(self):
+		self.irrp_process = None
+		self.ir_number = "0"
+		
+	def sort_stdout(self,text):
+		pattern = r'\[([0-9, ]+)\]'
+		matches = re.findall(pattern, text)
+		if matches:
+			numbers = [int(num) for num in matches[0].split(',')]
+		else:
+			print("sort_error!")
+		return numbers
+		
+	def compare(self,p1, p2):
 
+	   if len(p1) != len(p2):
+		   print("not equal len")
+		   return False
 
-#text = recv_data()
+	   for i in range(len(p1)):
+		   v = p1[i] / p2[i]
+		   if (v < TOLER_MIN) or (v > TOLER_MAX):
+			   return False
+			
+	   for i in range(len(p1)):
+		   p1[i] = int(round((p1[i]+p2[i])/2.0))
 
-irrp_process = subprocess.Popen(["python3", "irrp_re.py", "-r", "-g18", "-f", "recv", "data"], stdout=subprocess.PIPE,text=True)
+	   return True
+		
+	def time_out_callback(self):
+		print("time_out!")
+		self.irrp_process.terminate()
+		print("end")
+		
+	def data_handling(self,output):
+		numbers = self.sort_stdout(output)
+		print(num_data[self.ir_number])
+		recog = self.compare(numbers,num_data[self.ir_number])
+		return recog
 
+	def recv_func(self,ir_number):
+		self.ir_number = ir_number
+		self.irrp_process = subprocess.Popen(["python3", "irrp_re.py", "-r", "-g18", "-f", "recv", "data"], stdout=subprocess.PIPE,text=True)
+		timer = threading.Timer(10.0,self.time_out_callback)
+		timer.start()
+		output = self.irrp_process.stdout.read()
+		print(output)
+		if output == "":
+			print("no-data")
+			return 0
+		else:
+			timer.cancel()
+			recog = self.data_handling(output)
+			return recog
+	
 
-timeout_seconds = 10
-time.sleep(timeout_seconds)
+		
+date = IR_Process()
+recog = date.recv_func("9")		
 
-irrp_process.terminate()
-irrp_process.wait()
+print(recog)
+print("end")
 
-output = irrp_process.stdout.read()
-print(output)
-
-print("ok!")
-#text = irrp_process.stdout
-#print(text)
-#numbers = sort_stdout(text)
-#recog = compare(numbers,num_data["0"])
-#print(recog)
 
