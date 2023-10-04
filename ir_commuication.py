@@ -7,16 +7,6 @@ import threading
 TOLERANCE  = 15
 TOLER_MIN =  (100 - TOLERANCE) / 100.0
 TOLER_MAX =  (100 + TOLERANCE) / 100.0
-
-
-	
-def recv_data():
-	read_cmd = "python3 irrp_re.py -r -g18 -f recv data"
-	result = subprocess.run([read_cmd],capture_output=True,shell=True,text = True)
-	recv_data = result.stdout
-	return recv_data
-
-
  
 num_data = {
 	"0": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552],
@@ -30,6 +20,7 @@ num_data = {
 	"8": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552],
 	"9": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552]
 	}
+send_list = ["0","1","2","3","4","5","6","7","8","9"]
 class IR_Process:
 	def __init__(self):
 		self.irrp_process = None
@@ -63,11 +54,9 @@ class IR_Process:
 	def time_out_callback(self):
 		print("time_out!")
 		self.irrp_process.terminate()
-		print("end")
 		
 	def data_handling(self,output):
 		numbers = self.sort_stdout(output)
-		print(num_data[self.ir_number])
 		recog = self.compare(numbers,num_data[self.ir_number])
 		return recog
 
@@ -77,7 +66,6 @@ class IR_Process:
 		timer = threading.Timer(10.0,self.time_out_callback)
 		timer.start()
 		output = self.irrp_process.stdout.read()
-		print(output)
 		if output == "":
 			print("no-data")
 			return 0
@@ -85,13 +73,21 @@ class IR_Process:
 			timer.cancel()
 			recog = self.data_handling(output)
 			return recog
+			
+	def send_data(ir_number):
+		subprocess.Popen(["python3", "irrp_re.py", "-p", "-g17", "-f", "read", ir_number])
 	
 
 		
 date = IR_Process()
-recog = date.recv_func("9")		
+for num in send_list:
+	recog = date.recv_func(num)	
+	if recog == 0:
+		print(num+" = not match")
+	else:
+		print(num+" = OK")	
 
-print(recog)
+#print(recog)
 print("end")
 
 
