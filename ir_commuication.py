@@ -66,10 +66,24 @@ num_data = {
 	}
 
 
-text = recv_data()
-print(text)
-numbers = sort_stdout(text)
-subprocess.kill()
-recog = compare(numbers,num_data["0"])
-print(recog)
+#text = recv_data()
+
+irrp_process = subprocess.Popen(["python3", "irrp_re.py", "-r", "-g18", "-f", "recv", "data"], stdout=subprocess.PIPE,text=True)
+
+
+timeout_seconds = 10
+time.sleep(timeout_seconds)
+
+irrp_process.terminate()
+irrp_process.wait()
+
+output = irrp_process.stdout.read()
+print(output)
+
+print("ok!")
+#text = irrp_process.stdout
+#print(text)
+#numbers = sort_stdout(text)
+#recog = compare(numbers,num_data["0"])
+#print(recog)
 
