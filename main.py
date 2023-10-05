@@ -1,5 +1,6 @@
 import ir_commuication as ir
 import operate_db as db
+import time
 
 TABLE_NAME = "toilet0"
 
@@ -13,17 +14,19 @@ for num in ir.send_list:
 	recog = data.recv_func(num)	
 	if recog == 0:
 		print("retry!")
-		data.send_data(num)
-		 #delay(1)
+		time.sleep(1)
 		recog2 = data.recv_func(num)
 		if recog2 == 0:
 			print("unable")
-			#db.insert_table(connection,TABLE_NAME,num,d_now,t_now)
 		else:
 			print(" OK!")
+			data.send_data("0")
+			print("send_ok")
 			#db.insert_table(connection,TABLE_NAME,num,d_now,t_now)
 	else:
 		print("OK")	
+		data.send_data("0")
+		print("send_ok")
 		#db.insert_table(connection,TABLE_NAME,num,d_now,t_now)
 
 print("end")

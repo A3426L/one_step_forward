@@ -4,7 +4,7 @@ import subprocess
 import re
 import threading
 
-INTERVAL_TIME = 1.0
+INTERVAL_TIME = 10.0
 TOLERANCE  = 15
 TOLER_MIN =  (100 - TOLERANCE) / 100.0
 TOLER_MAX =  (100 + TOLERANCE) / 100.0
