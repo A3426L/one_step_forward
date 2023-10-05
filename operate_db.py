@@ -40,14 +40,14 @@ def insert_table(connection,table_name,name,date,time):
     cursor.execute(insert_query, (name,date, time,))
     connection.commit()
     
-def delete_tableData(connection,table_name,conditional):
-	delete_query = "DELETE FROM {} {}".format(table_name,conditional)
+def delete_tableData(connection,table_name,option):
+	delete_query = "DELETE FROM {} {}".format(table_name,option)
 	cursor = connection.cursor()
 	cursor.execute(delete_query)
 	connection.commit()
 
-def read_table(connection,table_name,element,conditional):
-    read_query = "SELECT {} FROM {} {}".format(element,table_name,conditional)
+def read_table(connection,table_name,element,option):
+    read_query = "SELECT {} FROM {} {}".format(element,table_name,option)
     print(read_query)
     cursor = connection.cursor()
     cursor.execute(read_query)

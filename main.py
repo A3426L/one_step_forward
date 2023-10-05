@@ -28,8 +28,15 @@ for num in ir.send_list:
 
 print("end")
 
-result = db.read_table(connection,TABLE_NAME,"date ,name ","")
-db.delete_tableData(connection,TABLE_NAME,"WHERE name = '1' " )
-print(result)
+result_A = db.read_table(connection,TABLE_NAME,"time,date ,name ",option="WHERE name = '1' AND (date =  '{}' ) AND (time < '08:00' OR time > '20:00' )".format(d_now))
+result_B = db.read_table(connection,TABLE_NAME,"time,date ,name ",option="WHERE name = '2' AND (date =  '{}' ) AND (time < '08:00' OR time > '20:00' )".format(d_now))
+count_A = len(result_A)
+count_B = len(result_B)
+	
+print(count_A)
+print(count_B)
+	
+	
+#db.delete_tableData(connection,TABLE_NAME,option="WHERE name = '1' " )
 
 connection.close()
