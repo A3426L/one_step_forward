@@ -4,6 +4,7 @@ import subprocess
 import re
 import threading
 
+INTERVAL_TIME = 1.0
 TOLERANCE  = 15
 TOLER_MIN =  (100 - TOLERANCE) / 100.0
 TOLER_MAX =  (100 + TOLERANCE) / 100.0
@@ -20,7 +21,9 @@ num_data = {
 	"8": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552],
 	"9": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552]
 	}
-send_list = ["0","1","2","3","4","5","6","7","8","9"]
+	
+send_list = ["1","2"]
+
 class IR_Process:
 	def __init__(self):
 		self.irrp_process = None
@@ -63,7 +66,7 @@ class IR_Process:
 	def recv_func(self,ir_number):
 		self.ir_number = ir_number
 		self.irrp_process = subprocess.Popen(["python3", "irrp_re.py", "-r", "-g18", "-f", "recv", "data"], stdout=subprocess.PIPE,text=True)
-		timer = threading.Timer(10.0,self.time_out_callback)
+		timer = threading.Timer(INTERVAL_TIME,self.time_out_callback)
 		timer.start()
 		output = self.irrp_process.stdout.read()
 		if output == "":
@@ -74,20 +77,10 @@ class IR_Process:
 			recog = self.data_handling(output)
 			return recog
 			
-	def send_data(ir_number):
+	def send_data(self,ir_number):
 		subprocess.Popen(["python3", "irrp_re.py", "-p", "-g17", "-f", "read", ir_number])
 	
-
 		
-date = IR_Process()
-for num in send_list:
-	recog = date.recv_func(num)	
-	if recog == 0:
-		print(num+" = not match")
-	else:
-		print(num+" = OK")	
 
-#print(recog)
-print("end")
 
 

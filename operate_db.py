@@ -1,5 +1,6 @@
 import psycopg2
 import datetime
+
 def connect_database():
     connection = psycopg2.connect(
     host="localhost",
@@ -38,6 +39,12 @@ def insert_table(connection,table_name,name,date,time):
     cursor = connection.cursor()
     cursor.execute(insert_query, (name,date, time,))
     connection.commit()
+    
+def delete_tableData(connection,table_name,conditional):
+	delete_query = "DELETE FROM {} {}".format(table_name,conditional)
+	cursor = connection.cursor()
+	cursor.execute(delete_query)
+	connection.commit()
 
 def read_table(connection,table_name,element,conditional):
     read_query = "SELECT {} FROM {} {}".format(element,table_name,conditional)
@@ -54,14 +61,14 @@ def current_time():
 	return d_now,t_now
 
 
-connection = connect_database()
+#connection = connect_database()
 #create_table(connection,"toilet0")
-d_now ,t_now = current_time()
+#d_now ,t_now = current_time()
 #insert_table(connection,"toilet0","A",d_now,t_now)
 
-result = read_table(connection,"toilet0","*","WHERE time ='01:19'")
-print(result)
+#result = read_table(connection,"toilet0","*","")
+#print(result)
 
 
 
-connection.close()
+#connection.close()
