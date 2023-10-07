@@ -18,6 +18,7 @@ for num in ir.send_list:
 		recog2 = data.recv_func(num)
 		if recog2 == 0:
 			print("unable")
+			db.insert_table(connection,TABLE_NAME,num,d_now,t_now)
 		else:
 			print(" OK!")
 			data.send_data("0")

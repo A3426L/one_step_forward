@@ -59,6 +59,12 @@ def current_time():
 	d_now = dt_now.strftime('%Y-%m-%d')
 	t_now = dt_now.strftime('%H:%M')
 	return d_now,t_now
+	
+def previous_date():
+	dt_now = datetime.datetime.now()
+	dt_previous = dt_now - datetime.timedelta(days=1)
+	d_previous = dt_previous.strftime('%Y-%m-%d')
+	return d_previous
 
 
 #connection = connect_database()
