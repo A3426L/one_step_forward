@@ -5,7 +5,6 @@ import asyncio
 import operate_db as db
 
 TABLE_NAME = "toilet0"
-TOKEN = "***"
 
 def create_bot():
     a = 0
@@ -100,6 +99,18 @@ def create_bot():
         connection.close()
         """変数cの値を表示するコマンド"""
         await ctx.send(f"昨日の aの使用回数は{a_p}回、bの使用回数は{b_p}回です。トータル{c_p}回です。")
+        
+        
+    @bot.command()
+    async def get_graph(ctx):
+        image_path = "bar_data.png"
+
+        try:
+            with open(image_path, "rb") as file:
+                image = discord.File(file)
+            await ctx.send(file=image)
+        except FileNotFoundError:
+            await ctx.send("The image file does not exist.")
 
     
     return bot
@@ -108,4 +119,4 @@ def create_bot():
 bot = create_bot()
 
 # トークンを設定してボットを起動
-bot.run(TOKEN)
+bot.run("***")

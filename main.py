@@ -9,16 +9,22 @@ connection = db.connect_database()
 data = ir.IR_Process()
 print("start_recvdata")
 d_now,t_now = db.current_time()
+
 for num in ir.send_list:
+	#data.send_data("5")
+	time.sleep(3)
+	data.send_data(num)
+	time.sleep(1)
 	print(num+":")
 	recog = data.recv_func(num)	
-	if recog == 0:
+	print(recog)
+	if recog == False:
 		print("retry!")
 		time.sleep(1)
 		recog2 = data.recv_func(num)
 		if recog2 == 0:
 			print("unable")
-			db.insert_table(connection,TABLE_NAME,num,d_now,t_now)
+			#db.insert_table(connection,TABLE_NAME,num,d_now,t_now)
 		else:
 			print(" OK!")
 			data.send_data("0")
@@ -26,6 +32,7 @@ for num in ir.send_list:
 			#db.insert_table(connection,TABLE_NAME,num,d_now,t_now)
 	else:
 		print("OK")	
+		time.sleep(1)
 		data.send_data("0")
 		print("send_ok")
 		#db.insert_table(connection,TABLE_NAME,num,d_now,t_now)

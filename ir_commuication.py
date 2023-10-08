@@ -3,9 +3,10 @@ import time
 import subprocess
 import re
 import threading
+import pigpio
 
-INTERVAL_TIME = 1.0
-TOLERANCE  = 15
+INTERVAL_TIME = 5.0
+TOLERANCE  = 30
 TOLER_MIN =  (100 - TOLERANCE) / 100.0
 TOLER_MAX =  (100 + TOLERANCE) / 100.0
  
@@ -22,7 +23,7 @@ num_data = {
 	"9": [9032, 4484, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 570, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 570, 552, 1693, 552, 1693, 552, 570, 552, 1693, 552]
 	}
 	
-send_list = ["1","2"]
+send_list = ["1","2","3","4","5"]
 
 class IR_Process:
 	def __init__(self):
@@ -57,6 +58,8 @@ class IR_Process:
 	def time_out_callback(self):
 		print("time_out!")
 		self.irrp_process.terminate()
+		pi = pigpio.pi()
+		pi.stop()
 		
 	def data_handling(self,output):
 		numbers = self.sort_stdout(output)
